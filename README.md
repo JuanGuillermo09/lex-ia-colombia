@@ -17,7 +17,7 @@ LexIA Colombia es una aplicación web full-stack que permite consultar artículo
 | IA | Abstraction layer (Groq, OpenAI, Gemini, Llama/Ollama) |
 | Búsqueda semántica | Embeddings vectoriales + cosine similarity |
 | Web Scraping | DuckDuckGo Lite |
-| Contenedores | Docker + Docker Compose + Nginx |
+| Despliegue | Railway.app |
 
 ---
 
@@ -42,8 +42,7 @@ LexIA/
 │   │       ├── layouts/      # Main layout (sidenav) / Auth layout
 │   │       └── features/     # Landing, login, register, dashboard, chat,
 │   │                         # history, profile, admin (users/docs/articles/stats)
-├── infrastructure/           # Dockerfiles, Nginx config, DB init
-└── docker-compose.yml        # PostgreSQL + Backend + Frontend
+├── infrastructure/           # Dockerfiles, DB init (para desarrollo local)
 ```
 
 ### Principios
@@ -100,7 +99,6 @@ LexIA/
 ### Requisitos
 - Node.js 20+
 - PostgreSQL 16
-- Docker (opcional)
 
 ### Desarrollo local
 
@@ -122,83 +120,6 @@ cd frontend
 npm install
 ng serve --proxy-config proxy.conf.json  # http://localhost:4200
 ```
-
-### Docker (local con código fuente)
-
-```bash
-# Primera vez o tras cambios:
-docker compose up -d --build
-
-# Si ya todo está construido:
-docker compose up -d
-
-# Frontend: http://localhost:8080
-# Backend API: http://localhost:3000/api
-# Swagger: http://localhost:3000/api-docs
-```
-
-### Docker Hub (sin código fuente — solo Docker Desktop)
-
-Las imágenes están publicadas en Docker Hub. En cualquier PC con Docker:
-
-```bash
-# Crear docker-compose.yml con este contenido:
-cat > docker-compose.yml << 'EOF'
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: lexia-db
-    environment:
-      POSTGRES_USER: lexia
-      POSTGRES_PASSWORD: lexia123
-      POSTGRES_DB: lexia_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lexia -d lexia_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  backend:
-    image: juan287/lexia-backend:latest
-    container_name: lexia-backend
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://lexia:lexia123@db:5432/lexia_db?schema=public
-      JWT_SECRET: cambia_esto_por_un_secreto_seguro
-      AI_PROVIDER: groq
-      GROQ_API_KEY: TU_API_KEY_DE_GROQ
-    ports:
-      - "3000:3000"
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - uploads:/app/uploads
-
-  frontend:
-    image: juan287/lexia-frontend:latest
-    container_name: lexia-frontend
-    ports:
-      - "8080:80"
-    depends_on:
-      - backend
-
-volumes:
-  postgres_data:
-  uploads:
-EOF
-
-# Ejecutar:
-docker compose up -d
-
-# Acceder: http://localhost:8080
-```
-
-> **Nota:** Reemplazar `GROQ_API_KEY` con una API key válida de [Groq](https://console.groq.com/keys).
 
 ### Variables de entorno clave (`.env`)
 
@@ -254,24 +175,22 @@ Documentación Swagger disponible en `/api-docs` con el servidor corriendo.
 
 ---
 
-## Despliegue temporal con túnel público
+## Despliegue en Railway.app
 
-Para compartir el proyecto desde tu PC sin un VPS:
+LexIA está desplegado en Railway.app (gratuito). Cada servicio se despliega desde el repositorio de GitHub:
 
-```bash
-# Iniciar el túnel (una vez):
-cd frontend
-npx localtunnel --port 8080
+| Servicio | Tipo | Descripción |
+|----------|------|-------------|
+| Backend | Node.js | API REST en Express + TypeScript |
+| Frontend | Static Site | Angular 20 SPA |
+| Base de datos | PostgreSQL | Plugin de Railway |
 
-# La URL se muestra en consola
-# Queda guardada en: %TEMP%\localtunnel.log
-# Para verla después:
-type "%TEMP%\localtunnel.log"
-```
+### Enlaces
+- **Frontend:** `https://lexia.up.railway.app` (cuando esté activo)
+- **Backend API:** `https://lexia-backend.up.railway.app`
+- **Swagger:** `https://lexia-backend.up.railway.app/api-docs`
 
-Cualquier persona con la URL puede acceder mientras el PC esté encendido.
-
----
+> **Nota:** Los servicios gratuitos de Railway se suspenden tras períodos de inactividad. Al recibir una solicitud, tardan unos segundos en reanudarse.
 
 ## Licencia
 
