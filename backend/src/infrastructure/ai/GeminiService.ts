@@ -52,30 +52,57 @@ export class GeminiService implements IAIService {
       };
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Gemini API error: ${error}`);
+        if (response.ok) {
+          const data: any = await response.json();
+          const candidate = data.candidates?.[0];
+          return {
+            content: candidate?.content?.parts?.[0]?.text || '',
+            model: data.modelVersion || model,
+            usage: data.usageMetadata
+              ? {
+                  promptTokens: data.usageMetadata.promptTokenCount,
+                  completionTokens: data.usageMetadata.candidatesTokenCount,
+                  totalTokens: data.usageMetadata.totalTokenCount,
+                }
+              : undefined,
+          };
+        }
+
+        const error = await response.text();
+        const retryAfter = this.parseRetryDelay(error);
+        if (response.status === 429 && retryAfter && attempt < maxRetries) {
+          console.warn(`[Gemini] Rate limited. Retrying in ${retryAfter}s (attempt ${attempt}/${maxRetries})...`);
+          await new Promise(r => setTimeout(r, retryAfter * 1000 + 1000));
+          continue;
+        }
+        throw new Error(`Gemini API error: ${error}`);
+      } catch (e: any) {
+        if (attempt < maxRetries && e.message?.includes('fetch failed')) {
+          console.warn(`[Gemini] Network error, retrying (${attempt}/${maxRetries})...`);
+          await new Promise(r => setTimeout(r, 2000 * attempt));
+          continue;
+        }
+        throw e;
+      }
     }
+    throw new Error('Gemini: max retries exceeded');
+  }
 
-    const data: any = await response.json();
-    const candidate = data.candidates?.[0];
-    return {
-      content: candidate?.content?.parts?.[0]?.text || '',
-      model: data.modelVersion || model,
-      usage: data.usageMetadata
-        ? {
-            promptTokens: data.usageMetadata.promptTokenCount,
-            completionTokens: data.usageMetadata.candidatesTokenCount,
-            totalTokens: data.usageMetadata.totalTokenCount,
-          }
-        : undefined,
-    };
+  private parseRetryDelay(error: string): number | null {
+    const match = error.match(/retryDelay["']:\s*"?(\d+)s/);
+    if (match) return parseInt(match[1]);
+    const match2 = error.match(/Please retry in\s+(\d+(?:\.\d+)?)s/);
+    if (match2) return Math.ceil(parseFloat(match2[1]));
+    return null;
   }
 
   /**
