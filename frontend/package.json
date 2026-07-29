@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "node scripts/set-env.js && ng build",
+    "build": "node scripts/set-env.js && ng build && node -e \"require('fs').cpSync('dist/browser/index.html','dist/browser/404.html')\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
