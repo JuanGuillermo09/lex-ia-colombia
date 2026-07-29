@@ -33,6 +33,11 @@ if (config.nodeEnv === 'development') {
 }
 
 /** Limitador de tasa global: 100 solicitudes cada 15 minutos */
+/** Endpoint de verificación de salud (sin rate limit para evitar 429 en health checks de Render) */
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -46,14 +51,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'LexIA Colombia API',
 }));
 
-/** Endpoint de verificación de salud del servidor */
-app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    environment: config.nodeEnv,
-  });
-});
 
 /** Registro de rutas del API */
 app.use('/api/auth', authRoutes);
