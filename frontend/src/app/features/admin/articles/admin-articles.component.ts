@@ -29,6 +29,8 @@ export class AdminArticlesComponent implements OnInit {
   updating = false;
   exporting = false;
   showScrollTop = false;
+  progressMessages: string[] = [];
+  showProgress = false;
 
   constructor(
     private articleService: ArticleService,
@@ -68,22 +70,35 @@ export class AdminArticlesComponent implements OnInit {
 
   updateArticles(): void {
     this.updating = true;
-    this.articleService.update().subscribe({
-      next: (result) => {
-        this.updating = false;
-        this.snackBar.open(
-          `Actualizado: ${result.documentsUpdated} documentos, ${result.articlesAdded} artículos añadidos, ${result.articlesRemoved} eliminados`,
-          'Cerrar', { duration: 6000 },
-        );
-        if (result.errors.length > 0) {
-          console.warn('Errores:', result.errors);
-        }
-        this.load();
-      },
-      error: (err) => {
-        this.updating = false;
-        this.snackBar.open('Error al actualizar artículos', 'Cerrar', { duration: 4000 });
-      },
+    this.showProgress = true;
+    this.progressMessages = [];
+    const token = localStorage.getItem('token');
+    const apiUrl = this.articleService.apiUrl;
+    const eventSource = new EventSource(`${apiUrl}/update/stream?token=${token}`);
+    eventSource.addEventListener('progress', (e: MessageEvent) => {
+      const data = JSON.parse(e.data);
+      this.progressMessages = [...this.progressMessages, data.message];
+    });
+    eventSource.addEventListener('complete', (e: MessageEvent) => {
+      const result = JSON.parse(e.data);
+      eventSource.close();
+      this.updating = false;
+      this.showProgress = false;
+      this.snackBar.open(
+        `Actualizado: ${result.documentsUpdated} documentos, ${result.articlesAdded} artículos añadidos`,
+        'Cerrar', { duration: 6000 },
+      );
+      if (result.errors?.length > 0) {
+        console.warn('Errores:', result.errors);
+      }
+      this.load();
+    });
+    eventSource.addEventListener('error', () => {
+      eventSource.close();
+      this.updating = false;
+      this.showProgress = false;
+      this.snackBar.open('Error al actualizar artículos', 'Cerrar', { duration: 4000 });
+      this.load();
     });
   }
 

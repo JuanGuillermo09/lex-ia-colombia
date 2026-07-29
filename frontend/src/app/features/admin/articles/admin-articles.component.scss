@@ -19,6 +19,29 @@
 .article-text { color: #444; line-height: 1.6; font-size: 0.9rem; white-space: pre-line; }
 .scroll-top-btn { position: absolute; bottom: 72px; right: 24px; z-index: 10; }
 
+.progress-overlay {
+  position: absolute; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.progress-card {
+  background: #fff; border-radius: 12px; padding: 24px;
+  max-width: 500px; width: 90%; max-height: 70vh;
+  display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.progress-header {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 1.1rem; font-weight: 600; color: #1a237e; margin-bottom: 16px;
+}
+.progress-header .spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.progress-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.progress-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #333; }
+.progress-item mat-icon { font-size: 18px; width: 18px; height: 18px; color: #43a047; flex-shrink: 0; }
+.progress-pulse { display: flex; align-items: center; gap: 8px; margin-top: 16px; color: #666; font-size: 0.85rem; }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #3949ab; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
 @media (max-width: 768px) {
   .articles-container { padding: 16px; }
   .articles-container h1 { font-size: 1.3rem; }

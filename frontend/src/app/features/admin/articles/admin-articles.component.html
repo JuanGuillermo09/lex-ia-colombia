@@ -3,7 +3,7 @@
     <h1>Artículos almacenados</h1>
     <div class="header-actions">
       <span class="total" *ngIf="!loading">{{ total }} artículos</span>
-      <button mat-stroked-button color="primary" (click)="updateArticles()" [disabled]="updating">
+      <button mat-stroked-button color="primary" (click)="updateArticles()" [disabled]="updating || showProgress">
         <mat-icon>{{ updating ? 'hourglass_empty' : 'sync' }}</mat-icon>
         {{ updating ? 'Actualizando...' : 'Actualizar artículos' }}
       </button>
@@ -11,6 +11,25 @@
         <mat-icon>{{ exporting ? 'hourglass_empty' : 'download' }}</mat-icon>
         {{ exporting ? 'Generando...' : 'Descargar PDF' }}
       </button>
+    </div>
+  </div>
+
+  <div *ngIf="showProgress" class="progress-overlay">
+    <div class="progress-card">
+      <div class="progress-header">
+        <mat-icon class="spin">sync</mat-icon>
+        <span>Actualizando artículos...</span>
+      </div>
+      <div class="progress-list">
+        <div *ngFor="let msg of progressMessages" class="progress-item">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ msg }}</span>
+        </div>
+      </div>
+      <div class="progress-pulse" *ngIf="updating">
+        <span class="pulse-dot"></span>
+        Procesando...
+      </div>
     </div>
   </div>
 

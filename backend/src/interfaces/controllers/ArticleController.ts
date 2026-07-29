@@ -41,6 +41,34 @@ export class ArticleController {
     }
   }
 
+  async updateStream(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    if (!this.updateArticlesUseCase) {
+      res.status(500).json({ error: 'UpdateArticlesUseCase no configurado' });
+      return;
+    }
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+    const sendEvent = (event: string, data: any) => {
+      if (res.destroyed) return;
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+      if (typeof (res as any).flush === 'function') (res as any).flush();
+    };
+    sendEvent('start', { message: 'Iniciando actualización de artículos...' });
+    try {
+      const result = await this.updateArticlesUseCase.execute((message) => {
+        sendEvent('progress', { message });
+      });
+      sendEvent('complete', result);
+      res.end();
+    } catch (error: any) {
+      sendEvent('error', { message: error.message });
+      res.end();
+    }
+  }
+
   async exportPdf(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!this.exportArticlesUseCase) {

@@ -6,7 +6,7 @@ import { ArticleResponse } from '../models/article.model';
 
 @Injectable({ providedIn: 'root' })
 export class ArticleService {
-  private readonly apiUrl = `${environment.apiUrl}/articles`;
+  readonly apiUrl = `${environment.apiUrl}/articles`;
 
   constructor(private http: HttpClient) {}
 

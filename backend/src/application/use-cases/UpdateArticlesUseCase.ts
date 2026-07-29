@@ -1,7 +1,7 @@
 import { IDocumentRepository } from '../../domain/repositories/IDocumentRepository';
 import { IArticleRepository } from '../../domain/repositories/IArticleRepository';
 import { IAIService } from '../../domain/services/IAIService';
-import { WebSearchService, WebSearchResult } from '../../infrastructure/search/WebSearchService';
+import { WebSearchService } from '../../infrastructure/search/WebSearchService';
 
 interface ArticleData {
   number: string;
@@ -14,6 +14,7 @@ interface UpdateResult {
   articlesAdded: number;
   articlesRemoved: number;
   errors: string[];
+  messages: string[];
 }
 
 const LEGAL_CODES = [
@@ -33,22 +34,26 @@ export class UpdateArticlesUseCase {
     private readonly webSearch: WebSearchService,
   ) {}
 
-  async execute(): Promise<UpdateResult> {
-    const result: UpdateResult = { documentsUpdated: 0, articlesAdded: 0, articlesRemoved: 0, errors: [] };
+  async execute(onProgress?: (message: string) => void): Promise<UpdateResult> {
+    const result: UpdateResult = { documentsUpdated: 0, articlesAdded: 0, articlesRemoved: 0, errors: [], messages: [] };
+    const log = (msg: string) => { result.messages.push(msg); onProgress?.(msg); };
 
     for (const code of LEGAL_CODES) {
       try {
-        const articles = await this.fetchArticles(code);
+        log(`Procesando ${code.name}...`);
+        const articles = await this.fetchArticles(code, log);
         if (articles.length === 0) {
-          result.errors.push(`No se encontraron artículos para ${code.name}`);
+          log(`No se encontraron artículos para ${code.name}`);
           continue;
         }
+        log(`Se encontraron ${articles.length} artículos en ${code.name}`);
         const doc = await this.findOrCreateDocument(code.name, code.type);
         const existing = await this.articleRepository.findByDocumentId(doc.id);
         for (const a of existing) {
           await this.articleRepository.deleteByDocumentId(doc.id);
           result.articlesRemoved++;
         }
+        if (existing.length > 0) log(`Eliminados ${existing.length} artículos anteriores de ${code.name}`);
         for (const article of articles) {
           const embedding = await this.aiService.generateEmbedding(article.text);
           await this.articleRepository.create({
@@ -61,24 +66,35 @@ export class UpdateArticlesUseCase {
           result.articlesAdded++;
         }
         result.documentsUpdated++;
+        log(`${code.name}: ${articles.length} artículos guardados`);
       } catch (e: any) {
-        result.errors.push(`${code.name}: ${e.message}`);
+        const errMsg = `${code.name}: ${e.message}`;
+        result.errors.push(errMsg);
+        log(`ERROR: ${errMsg}`);
       }
     }
+    log(`Proceso completado: ${result.articlesAdded} artículos añadidos`);
     return result;
   }
 
-  private async fetchArticles(code: { name: string; type: string }): Promise<ArticleData[]> {
+  private async fetchArticles(code: { name: string; type: string }, log?: (msg: string) => void): Promise<ArticleData[]> {
     let content: string | null = null;
     try {
       const searchResults = await this.webSearch.search(code.name.replace('Colombiano', '').trim(), 1);
       if (searchResults.length > 0) {
+        log?.(`Buscando contenido web: ${searchResults[0].url}`);
         content = await this.fetchPageContent(searchResults[0].url);
+      } else {
+        log?.('Sin resultados web, generando artículos con IA...');
       }
-    } catch {}
+    } catch {
+      log?.('Error en búsqueda web, generando artículos con IA...');
+    }
     if (content && content.length > 100) {
+      log?.(`Extrayendo artículos de contenido web (${content.length} caracteres)...`);
       return this.extractWithAI(content, code.name);
     }
+    log?.('Generando artículos desde conocimiento de IA...');
     return this.generateWithAI(code.name);
   }
 
@@ -127,14 +143,25 @@ export class UpdateArticlesUseCase {
   }
 
   private parseArticleJson(text: string): ArticleData[] {
-    const jsonMatch = text.match(/\{[\s\S]*"articles"[\s\S]*\}/);
-    if (!jsonMatch) return [];
     try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return Array.isArray(parsed.articles) ? parsed.articles : [];
-    } catch {
-      return [];
+      const parsed = JSON.parse(text);
+      if (parsed?.articles) return parsed.articles;
+    } catch {}
+    const jsonBlock = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonBlock) {
+      try {
+        const parsed = JSON.parse(jsonBlock[1].trim());
+        if (parsed?.articles) return parsed.articles;
+      } catch {}
     }
+    const jsonMatch = text.match(/\{[\s\S]*"articles"[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (Array.isArray(parsed.articles)) return parsed.articles;
+      } catch {}
+    }
+    return [];
   }
 
   private async findOrCreateDocument(name: string, type: string) {

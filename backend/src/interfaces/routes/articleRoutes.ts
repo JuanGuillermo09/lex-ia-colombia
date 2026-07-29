@@ -44,6 +44,10 @@ router.post('/update', (req, res, next) =>
   articleController.update(req as any, res, next),
 );
 
+router.get('/update/stream', (req, res, next) =>
+  articleController.updateStream(req as any, res, next),
+);
+
 router.get('/export', (req, res, next) =>
   articleController.exportPdf(req as any, res, next),
 );

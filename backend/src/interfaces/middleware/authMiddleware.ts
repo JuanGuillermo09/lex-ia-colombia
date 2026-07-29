@@ -16,13 +16,17 @@ export interface AuthRequest extends Request {
  * y agrega los datos del usuario a la solicitud
  */
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction): void {
+  let token: string | null = null;
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else if (req.query.token && typeof req.query.token === 'string') {
+    token = req.query.token;
+  }
+  if (!token) {
     res.status(401).json({ error: 'Token no proporcionado' });
     return;
   }
-
-  const token = authHeader.substring(7);
   try {
     const payload = authService.verifyAccessToken(token);
     req.user = { userId: payload.userId, role: payload.role };
