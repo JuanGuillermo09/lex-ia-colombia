@@ -16,8 +16,8 @@ LexIA Colombia es una aplicación web full-stack que permite consultar artículo
 | Autenticación | JWT + Refresh Tokens |
 | IA | Abstraction layer (Groq, OpenAI, Gemini, Llama/Ollama) |
 | Búsqueda semántica | Embeddings vectoriales + cosine similarity |
-| Web Scraping | DuckDuckGo Lite |
-| Despliegue | Railway.app |
+| Búsqueda web | DuckDuckGo Lite |
+| Despliegue | Render.com |
 
 ---
 
@@ -42,6 +42,7 @@ LexIA/
 │   │       ├── layouts/      # Main layout (sidenav) / Auth layout
 │   │       └── features/     # Landing, login, register, dashboard, chat,
 │   │                         # history, profile, admin (users/docs/articles/stats)
+├── render.yaml               # Blueprint Render (backend + DB)
 ```
 
 ### Principios
@@ -79,7 +80,7 @@ LexIA/
 ## Funcionalidades
 
 ### Usuario
-- **Autenticación** — registro, login, refresh tokens
+- **Autenticación** — registro, login, refresh tokens, recuperación de contraseña
 - **Dashboard** — acceso rápido a chat, historial y perfil
 - **Chat** — preguntas con respuestas del asistente, citas a artículos y referencias web
 - **Historial** — conversaciones guardadas, renombrar, eliminar (individual/múltiple)
@@ -87,8 +88,8 @@ LexIA/
 
 ### Administrador
 - **Usuarios** — listar, cambiar rol, eliminar, ver conversaciones de cada usuario (solo lectura)
-- **Documentos** — subir PDFs con articulados, listar, eliminar
-- **Artículos** — ver todos los artículos indexados (paginado)
+- **Artículos** — actualización automática vía IA (busca códigos colombianos en web y extrae artículos con Groq)
+- **Descarga PDF** — exportar todos los artículos a un documento PDF
 - **Estadísticas** — total de documentos, artículos y distribución por tipo
 
 ---
@@ -96,7 +97,7 @@ LexIA/
 ## Instalación y ejecución
 
 ### Requisitos
-- Node.js 20+
+- Node.js 22+
 - PostgreSQL 16
 
 ### Desarrollo local
@@ -162,34 +163,58 @@ Documentación Swagger disponible en `/api-docs` con el servidor corriendo.
 | GET | `/api/chat/conversations` | Bearer | Listar conversaciones |
 | PATCH | `/api/chat/conversations/:id` | Bearer | Renombrar conversación |
 | DELETE | `/api/chat/conversations/:id` | Bearer | Eliminar conversación |
-| POST | `/api/documents/upload` | Admin | Subir PDF |
+| POST | `/api/chat/conversations/delete-batch` | Bearer | Eliminar múltiples conversaciones |
+| GET | `/api/articles` | Admin | Listar artículos paginados |
+| POST | `/api/articles/update` | Admin | Actualizar artículos automáticamente (IA) |
+| GET | `/api/articles/export` | Admin | Descargar PDF con todos los artículos |
 | GET | `/api/documents` | Admin | Listar documentos |
+| POST | `/api/documents/upload` | Admin | Subir PDF (legacy — usar update automático) |
+| GET | `/api/documents/stats` | Admin | Estadísticas |
 | GET | `/api/admin/users` | Admin | Listar usuarios |
-| GET | `/api/admin/users/:id/conversations` | Admin | Ver conversaciones de usuario |
+| PATCH | `/api/admin/users/:id/role` | Admin | Cambiar rol |
+| DELETE | `/api/admin/users/:id` | Admin | Eliminar usuario |
 | GET | `/api/profile` | Bearer | Obtener perfil |
 | PATCH | `/api/profile` | Bearer | Actualizar perfil |
 | POST | `/api/profile/change-password` | Bearer | Cambiar contraseña |
 
 ---
 
+## Despliegue en Render.com
+
+LexIA está desplegado en Render.com (plan gratuito). Usa un Blueprint (`render.yaml`) para el backend y la base de datos, y un Static Site para el frontend.
+
+### Servicios
+
+| Servicio | Tipo | URL |
+|----------|------|-----|
+| Backend | Web Service | `https://lexia-backend-rqw4.onrender.com` |
+| Frontend | Static Site | `https://lex-ia-colombia.onrender.com` |
+| Base de datos | PostgreSQL | Render PostgreSQL plugin |
+
+### Variables de entorno en Render
+
+**Backend** (set via `render.yaml` o dashboard):
+| Variable | Valor |
+|----------|-------|
+| `DATABASE_URL` | (asignada por Render PostgreSQL) |
+| `JWT_SECRET` | (auto-generada) |
+| `JWT_REFRESH_SECRET` | (auto-generada) |
+| `AI_PROVIDER` | `groq` |
+| `GROQ_API_KEY` | (tu API key) |
+| `CORS_ORIGIN` | `https://lex-ia-colombia.onrender.com` |
+
+**Frontend** (configurar manualmente en dashboard):
+| Variable | Valor |
+|----------|-------|
+| `API_URL` | `https://lexia-backend-rqw4.onrender.com/api` |
+| `NPM_CONFIG_LEGACY_PEER_DEPS` | `true` |
+
+### Notas de despliegue
+- El frontend requiere `404.html` en el build para SPA routing (se copia automáticamente desde `index.html`)
+- El health check del backend (`/api/health`) está fuera del rate limiter para evitar falsos positivos
+- Si los servicios gratuitos se duermen por inactividad, el primer request puede demorar ~30s
+
 ---
-
-## Despliegue en Railway.app
-
-LexIA está desplegado en Railway.app (gratuito). Cada servicio se despliega desde el repositorio de GitHub:
-
-| Servicio | Tipo | Descripción |
-|----------|------|-------------|
-| Backend | Node.js | API REST en Express + TypeScript |
-| Frontend | Static Site | Angular 20 SPA |
-| Base de datos | PostgreSQL | Plugin de Railway |
-
-### Enlaces
-- **Frontend:** `https://lexia.up.railway.app` (cuando esté activo)
-- **Backend API:** `https://lexia-backend.up.railway.app`
-- **Swagger:** `https://lexia-backend.up.railway.app/api-docs`
-
-> **Nota:** Los servicios gratuitos de Railway se suspenden tras períodos de inactividad. Al recibir una solicitud, tardan unos segundos en reanudarse.
 
 ## Licencia
 
