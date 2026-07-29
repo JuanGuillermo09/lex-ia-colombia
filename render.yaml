@@ -11,7 +11,7 @@ services:
     plan: free
     region: oregon
     rootDir: backend
-    buildCommand: npm install && npx prisma generate
+    buildCommand: npm install --legacy-peer-deps && npx prisma generate
     startCommand: npx prisma migrate deploy && npx tsx scripts/seed.ts && npx tsx src/app.ts
     healthCheckPath: /api/health
     envVars:
