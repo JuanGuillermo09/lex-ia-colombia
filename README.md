@@ -42,7 +42,6 @@ LexIA/
 │   │       ├── layouts/      # Main layout (sidenav) / Auth layout
 │   │       └── features/     # Landing, login, register, dashboard, chat,
 │   │                         # history, profile, admin (users/docs/articles/stats)
-├── infrastructure/           # Dockerfiles, DB init (para desarrollo local)
 ```
 
 ### Principios
