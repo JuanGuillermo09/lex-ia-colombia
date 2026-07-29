@@ -10,7 +10,7 @@ import { config } from '../../config';
 /** Servicio de IA que utiliza la API de Google Gemini para chat y HuggingFace para embeddings. */
 export class GeminiService implements IAIService {
   private readonly apiKey: string;
-  private readonly baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+  private readonly baseUrl = 'https://generativelanguage.googleapis.com/v1';
 
   /** Inicializa el servicio con la clave de API desde la configuración. */
   constructor() {
