@@ -38,7 +38,11 @@ export class UpdateArticlesUseCase {
     const result: UpdateResult = { documentsUpdated: 0, articlesAdded: 0, articlesRemoved: 0, errors: [], messages: [] };
     const log = (msg: string) => { result.messages.push(msg); onProgress?.(msg); };
 
-    for (const code of LEGAL_CODES) {
+    for (const [index, code] of LEGAL_CODES.entries()) {
+      if (index > 0) {
+        log('Esperando 3 segundos para evitar límites de tasa...');
+        await new Promise(r => setTimeout(r, 3000));
+      }
       try {
         log(`Procesando ${code.name}...`);
         const articles = await this.fetchArticles(code, log);
@@ -54,7 +58,10 @@ export class UpdateArticlesUseCase {
           result.articlesRemoved++;
         }
         if (existing.length > 0) log(`Eliminados ${existing.length} artículos anteriores de ${code.name}`);
-        for (const article of articles) {
+        for (const [i, article] of articles.entries()) {
+          if (i > 0 && i % 5 === 0) {
+            await new Promise(r => setTimeout(r, 1000));
+          }
           const embedding = await this.aiService.generateEmbedding(article.text);
           await this.articleRepository.create({
             documentId: doc.id,
@@ -128,7 +135,7 @@ export class UpdateArticlesUseCase {
         role: 'user',
         content: `Texto legal: ${codeName}\n\n${content}`,
       },
-    ], { temperature: 0.1, maxTokens: 8000 });
+    ], { temperature: 0.1, maxTokens: 4000 });
     return this.parseArticleJson(response.content);
   }
 
@@ -136,9 +143,9 @@ export class UpdateArticlesUseCase {
     const response = await this.aiService.generateChatCompletion([
       {
         role: 'system',
-        content: `Eres un asistente legal experto en legislación colombiana. Lista los artículos más importantes del ${codeName}. Incluye número, título y texto completo de cada artículo. Responde SOLO con un JSON válido: {"articles":[{"number":"1","title":"Título","text":"Texto completo del artículo..."}]}. Sin markdown ni explicaciones.`,
+        content: `Eres un asistente legal experto en legislación colombiana. Lista los 10 artículos más importantes del ${codeName}. Incluye número, título y texto completo de cada artículo. Responde SOLO con un JSON válido: {"articles":[{"number":"1","title":"Título","text":"Texto completo del artículo..."}]}. Sin markdown ni explicaciones.`,
       },
-    ], { temperature: 0.1, maxTokens: 8000 });
+    ], { temperature: 0.1, maxTokens: 4000 });
     return this.parseArticleJson(response.content);
   }
 

@@ -50,6 +50,7 @@ export const config = {
       apiKey: process.env.GROQ_API_KEY || 'gsk-your-groq-api-key',
       model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
       embeddingModel: process.env.GROQ_EMBEDDING_MODEL || 'sentence-transformers/all-MiniLM-L6-v2',
+      hfToken: process.env.HF_TOKEN || '',
     },
   },
   embedding: {

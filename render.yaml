@@ -29,6 +29,8 @@ services:
         value: groq
       - key: GROQ_API_KEY
         sync: false
+      - key: HF_TOKEN
+        sync: false
       - key: CORS_ORIGIN
         value: https://lex-ia-colombia.onrender.com,https://lexia-frontend.onrender.com
       - key: PORT
