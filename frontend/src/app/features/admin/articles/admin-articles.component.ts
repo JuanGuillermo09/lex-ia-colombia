@@ -72,7 +72,7 @@ export class AdminArticlesComponent implements OnInit {
     this.updating = true;
     this.showProgress = true;
     this.progressMessages = [];
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     const apiUrl = this.articleService.apiUrl;
     const eventSource = new EventSource(`${apiUrl}/update/stream?token=${token}`);
     eventSource.addEventListener('progress', (e: MessageEvent) => {
