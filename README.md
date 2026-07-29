@@ -34,11 +34,14 @@ LexIA/
 │   ├── prisma/               # Schema + migraciones
 │   └── scripts/              # Seed (admin@lexia.com / admin123)
 ├── frontend/                 # SPA Angular
-│   └── src/app/
-│       ├── core/             # Modelos, servicios, interceptors, guards
-│       ├── layouts/          # Main layout (sidenav) / Auth layout
-│       └── features/         # Landing, login, register, dashboard, chat,
-│                             # history, profile, admin (users/docs/articles/stats)
+│   ├── src/
+│   │   ├── favicon.ico       # Martillo (gavel) de la justicia
+│   │   ├── assets/gavel.svg  # SVG del icono
+│   │   └── app/
+│   │       ├── core/         # Modelos, servicios, interceptors, guards
+│   │       ├── layouts/      # Main layout (sidenav) / Auth layout
+│   │       └── features/     # Landing, login, register, dashboard, chat,
+│   │                         # history, profile, admin (users/docs/articles/stats)
 ├── infrastructure/           # Dockerfiles, Nginx config, DB init
 └── docker-compose.yml        # PostgreSQL + Backend + Frontend
 ```
@@ -120,7 +123,7 @@ npm install
 ng serve --proxy-config proxy.conf.json  # http://localhost:4200
 ```
 
-### Docker
+### Docker (local con código fuente)
 
 ```bash
 # Primera vez o tras cambios:
@@ -133,6 +136,69 @@ docker compose up -d
 # Backend API: http://localhost:3000/api
 # Swagger: http://localhost:3000/api-docs
 ```
+
+### Docker Hub (sin código fuente — solo Docker Desktop)
+
+Las imágenes están publicadas en Docker Hub. En cualquier PC con Docker:
+
+```bash
+# Crear docker-compose.yml con este contenido:
+cat > docker-compose.yml << 'EOF'
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lexia-db
+    environment:
+      POSTGRES_USER: lexia
+      POSTGRES_PASSWORD: lexia123
+      POSTGRES_DB: lexia_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lexia -d lexia_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: juan287/lexia-backend:latest
+    container_name: lexia-backend
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://lexia:lexia123@db:5432/lexia_db?schema=public
+      JWT_SECRET: cambia_esto_por_un_secreto_seguro
+      AI_PROVIDER: groq
+      GROQ_API_KEY: TU_API_KEY_DE_GROQ
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+
+  frontend:
+    image: juan287/lexia-frontend:latest
+    container_name: lexia-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  uploads:
+EOF
+
+# Ejecutar:
+docker compose up -d
+
+# Acceder: http://localhost:8080
+```
+
+> **Nota:** Reemplazar `GROQ_API_KEY` con una API key válida de [Groq](https://console.groq.com/keys).
 
 ### Variables de entorno clave (`.env`)
 
@@ -183,6 +249,27 @@ Documentación Swagger disponible en `/api-docs` con el servidor corriendo.
 | GET | `/api/profile` | Bearer | Obtener perfil |
 | PATCH | `/api/profile` | Bearer | Actualizar perfil |
 | POST | `/api/profile/change-password` | Bearer | Cambiar contraseña |
+
+---
+
+---
+
+## Despliegue temporal con túnel público
+
+Para compartir el proyecto desde tu PC sin un VPS:
+
+```bash
+# Iniciar el túnel (una vez):
+cd frontend
+npx localtunnel --port 8080
+
+# La URL se muestra en consola
+# Queda guardada en: %TEMP%\localtunnel.log
+# Para verla después:
+type "%TEMP%\localtunnel.log"
+```
+
+Cualquier persona con la URL puede acceder mientras el PC esté encendido.
 
 ---
 

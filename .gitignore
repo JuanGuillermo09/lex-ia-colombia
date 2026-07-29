@@ -6,3 +6,5 @@ uploads/
 .DS_Store
 Thumbs.db
 *.tmp
+.angular/
+tunnel-url.txt
