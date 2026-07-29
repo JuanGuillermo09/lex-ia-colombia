@@ -24,6 +24,7 @@ export class PrismaDocumentRepository implements IDocumentRepository {
   async findAll(): Promise<IDocument[]> {
     const docs = await this.prisma.document.findMany({
       orderBy: { uploadedAt: 'desc' },
+      include: { _count: { select: { articles: true } } },
     });
     return docs.map((d) => this.toDomain(d));
   }
@@ -48,6 +49,6 @@ export class PrismaDocumentRepository implements IDocumentRepository {
 
   /** Convierte un registro de Prisma a la entidad de dominio Document. */
   private toDomain(doc: any): IDocument {
-    return new Document(doc.id, doc.name, doc.type, doc.filePath, doc.uploadedAt);
+    return new Document(doc.id, doc.name, doc.type, doc.filePath, doc.uploadedAt, doc._count?.articles ?? 0);
   }
 }

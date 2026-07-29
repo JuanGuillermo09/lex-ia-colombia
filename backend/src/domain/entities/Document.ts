@@ -5,6 +5,7 @@ export interface IDocument {
   type: string;
   filePath: string;
   uploadedAt: Date;
+  articlesCount?: number;
 }
 
 /** Entidad que almacena metadatos de un documento subido */
@@ -15,5 +16,6 @@ export class Document implements IDocument {
     public type: string,
     public filePath: string,
     public uploadedAt: Date = new Date(),
+    public articlesCount?: number,
   ) {}
 }
