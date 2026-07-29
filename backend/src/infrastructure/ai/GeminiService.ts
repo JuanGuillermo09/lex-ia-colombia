@@ -87,22 +87,31 @@ export class GeminiService implements IAIService {
     const truncated = text.length > 500 ? text.substring(0, 500) : text;
     const model = 'sentence-transformers/all-MiniLM-L6-v2';
     const url = `https://api-inference.huggingface.co/pipeline/feature-extraction/${model}`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inputs: truncated }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`HuggingFace Embedding API error: ${error}`);
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (config.ai.groq.hfToken) {
+      headers['Authorization'] = `Bearer ${config.ai.groq.hfToken}`;
     }
-
-    const data: any = await response.json();
-    return {
-      embedding: data[0],
-      model,
-    };
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ inputs: truncated }),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!response.ok) {
+        const error = await response.text();
+        console.warn(`[Embedding] HF API error (${response.status}): ${error.substring(0, 100)}`);
+        return { embedding: new Array(384).fill(0), model: 'fallback' };
+      }
+      const data: any = await response.json();
+      if (!data || !Array.isArray(data[0])) {
+        console.warn('[Embedding] Unexpected HF response format');
+        return { embedding: new Array(384).fill(0), model: 'fallback' };
+      }
+      return { embedding: data[0], model };
+    } catch (e: any) {
+      console.warn(`[Embedding] Error: ${e.message}`);
+      return { embedding: new Array(384).fill(0), model: 'fallback' };
+    }
   }
 }
