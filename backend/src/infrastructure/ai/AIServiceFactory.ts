@@ -3,6 +3,7 @@ import { OpenAIService } from './OpenAIService';
 import { LlamaService } from './LlamaService';
 import { GroqService } from './GroqService';
 import { GeminiService } from './GeminiService';
+import { FallbackAIService } from './FallbackAIService';
 import { config } from '../../config';
 
 /** Fábrica que crea la implementación concreta de IA según la configuración. */
@@ -12,7 +13,11 @@ export class AIServiceFactory {
    * @returns Implementación de IA basada en config.ai.provider
    */
   static create(): IAIService {
-    switch (config.ai.provider) {
+    const provider = config.ai.provider;
+    if (provider === 'fallback') {
+      return new FallbackAIService();
+    }
+    switch (provider) {
       case 'gemini':
         return new GeminiService();
       case 'groq':
