@@ -26,7 +26,7 @@ services:
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: AI_PROVIDER
-        value: gemini
+        value: fallback
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
