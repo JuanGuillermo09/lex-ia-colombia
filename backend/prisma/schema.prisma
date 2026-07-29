@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  password     String
+  role         Role           @default(USER)
+  createdAt    DateTime       @default(now()) @map("fecha_creacion")
+  conversations Conversation[]
+
+  @@map("usuarios")
+}
+
+model PasswordResetCode {
+  id        String   @id @default(uuid())
+  email     String   @map("email")
+  code      String   @map("codigo")
+  expiresAt DateTime @map("expiracion")
+  used      Boolean  @default(false) @map("usado")
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+
+  @@map("codigos_restablecimiento")
+}
+
+model Conversation {
+  id        String    @id @default(uuid())
+  userId    String    @map("usuario_id")
+  title     String    @default("Nueva conversación") @map("titulo")
+  createdAt DateTime  @default(now()) @map("fecha")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@map("conversaciones")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String       @map("conversacion_id")
+  question       String       @map("pregunta")
+  answer         String       @map("respuesta")
+  createdAt      DateTime     @default(now()) @map("fecha")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sources        MessageSource[]
+
+  @@map("mensajes")
+}
+
+model MessageSource {
+  id        String  @id @default(uuid())
+  messageId String  @map("mensaje_id")
+  articleId String  @map("articulo_id")
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@map("fuentes_mensaje")
+}
+
+model Document {
+  id         String    @id @default(uuid())
+  name       String    @map("nombre")
+  type       String    @map("tipo")
+  filePath   String    @map("ruta_archivo")
+  uploadedAt DateTime  @default(now()) @map("fecha_carga")
+  articles   Article[]
+
+  @@map("documentos")
+}
+
+model Article {
+  id          String          @id @default(uuid())
+  documentId  String          @map("documento_id")
+  number      String          @map("numero")
+  title       String          @map("titulo")
+  text        String          @map("texto")
+  embedding   Float[]         @map("embedding")
+  document    Document        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sources     MessageSource[]
+
+  @@map("articulos")
+}

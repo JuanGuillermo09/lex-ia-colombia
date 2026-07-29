@@ -1,0 +1,15 @@
+.dashboard { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 2rem; font-weight: 600; color: #1a237e; margin-bottom: 8px; }
+.subtitle { color: #666; font-size: 1.1rem; margin-bottom: 2rem; }
+.quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+.action-card { padding: 24px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.action-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.action-card mat-icon { font-size: 40px; width: 40px; height: 40px; color: #3949ab; margin-bottom: 12px; }
+.action-card h3 { margin: 0 0 8px; font-weight: 500; }
+.action-card p { margin: 0; color: #666; font-size: 0.9rem; }
+
+@media (max-width: 480px) {
+  .dashboard-container { padding: 16px; }
+  .dashboard-container h1 { font-size: 1.3rem; }
+  .quick-actions { grid-template-columns: 1fr; }
+}

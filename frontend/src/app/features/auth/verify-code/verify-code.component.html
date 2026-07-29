@@ -1,0 +1,23 @@
+<mat-card class="auth-card">
+  <mat-card-content>
+    <h2>Verificar código</h2>
+    <p class="subtitle">Ingresa el código de 6 dígitos que enviamos a tu correo</p>
+    <div class="timer" [class.expired]="expired">
+      <mat-icon>{{ expired ? 'timer_off' : 'timer' }}</mat-icon>
+      <span>{{ expired ? 'Código expirado' : timerDisplay }}</span>
+    </div>
+    <form (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Código de verificación</mat-label>
+        <input matInput type="text" [(ngModel)]="code" name="code" required minlength="6" maxlength="6">
+        <mat-icon matPrefix>vpn_key</mat-icon>
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading || expired">
+        {{ loading ? 'Verificando...' : 'Verificar código' }}
+      </button>
+    </form>
+    <p class="auth-link">
+      <a routerLink="/forgot-password">Solicitar nuevo código</a>
+    </p>
+  </mat-card-content>
+</mat-card>

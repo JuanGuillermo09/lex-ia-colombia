@@ -1,0 +1,52 @@
+<div class="profile">
+  <h1>Mi Perfil</h1>
+
+  <mat-card>
+    <mat-card-content>
+      <div class="profile-header">
+        <mat-icon class="avatar">account_circle</mat-icon>
+        <div>
+          <h2>{{ user?.name }}</h2>
+          <span class="role-badge">{{ user?.role === 'ADMIN' ? 'Administrador' : 'Usuario' }}</span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput [(ngModel)]="formData.name" name="name" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo electrónico</mat-label>
+          <input matInput type="email" [(ngModel)]="formData.email" name="email" required>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+          {{ loading ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="password-card">
+    <mat-card-content>
+      <h3>Cambiar contraseña</h3>
+      <form (ngSubmit)="onChangePassword()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña actual</mat-label>
+          <input matInput type="password" [(ngModel)]="passwordData.currentPassword" name="currentPassword" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nueva contraseña</mat-label>
+          <input matInput type="password" [(ngModel)]="passwordData.newPassword" name="newPassword" required minlength="6">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirmar nueva contraseña</mat-label>
+          <input matInput type="password" [(ngModel)]="passwordData.confirmPassword" name="confirmPassword" required>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="passwordLoading">
+          {{ passwordLoading ? 'Cambiando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

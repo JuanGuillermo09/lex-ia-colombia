@@ -1,0 +1,17 @@
+.admin-documents { max-width: 1000px; margin: 0 auto; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.header h1 { font-size: 1.8rem; font-weight: 600; color: #1a237e; margin: 0; }
+.upload-area { padding: 16px; margin-bottom: 16px; background: #e8eaf6; border-radius: 8px; }
+.empty { text-align: center; padding: 40px; color: #666; }
+.empty mat-icon { font-size: 48px; width: 48px; height: 48px; color: #ccc; }
+.docs-table { width: 100%; min-width: 600px; }
+.table-wrapper { overflow-x: auto; }
+
+@media (max-width: 768px) {
+  .admin-documents { padding: 16px; }
+  .admin-documents h1 { font-size: 1.3rem; }
+}
+@media (max-width: 480px) {
+  .admin-documents { padding: 8px; }
+  .upload-area { flex-direction: column; gap: 8px; }
+}

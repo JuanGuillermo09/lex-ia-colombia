@@ -1,0 +1,72 @@
+<div class="history">
+  <div class="header">
+    <h1>Historial de conversaciones</h1>
+    <div class="header-actions" *ngIf="conversations.length > 0 && !loading">
+      <mat-checkbox
+        [checked]="allSelected()"
+        [indeterminate]="someSelected()"
+        (change)="toggleAll()">
+        Seleccionar todo
+      </mat-checkbox>
+      <button
+        mat-raised-button
+        color="warn"
+        [disabled]="selectedIds.size === 0"
+        (click)="deleteBatch()">
+        <mat-icon>delete_sweep</mat-icon> Eliminar seleccionados ({{ selectedIds.size }})
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-skeleton">
+    <div class="skeleton-card" *ngFor="let _ of [1,2,3,4,5]">
+      <div class="skeleton-line skeleton-title"></div>
+      <div class="skeleton-line skeleton-date"></div>
+      <div class="skeleton-line skeleton-message"></div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && conversations.length === 0" class="empty">
+    <mat-icon>history</mat-icon>
+    <p>No tienes conversaciones aún</p>
+    <button mat-raised-button color="primary" routerLink="/chat">Iniciar consulta</button>
+  </div>
+
+  <div class="conversations" *ngIf="!loading && conversations.length > 0">
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let conv of conversations" [class.selected]="selectedIds.has(conv.id)">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="toggle(conv.id)" [checked]="selectedIds.has(conv.id)"></mat-checkbox>
+            <span class="conv-title" (dblclick)="startRename(conv); $event.stopPropagation()">
+              <ng-container *ngIf="renamingId !== conv.id; else renameInput">{{ conv.title }}</ng-container>
+              <ng-template #renameInput>
+                <input #renameField class="rename-input" [value]="renameValue" (keyup.enter)="confirmRename(conv)" (blur)="confirmRename(conv)" (click)="$event.stopPropagation()" (keyup.escape)="cancelRename()">
+              </ng-template>
+            </span>
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ conv.createdAt | date:'medium' }} - {{ conv.messages.length }} mensajes
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div class="conv-actions-top">
+          <button mat-icon-button color="primary" (click)="startRename(conv)">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        <div *ngFor="let msg of conv.messages" class="history-message">
+          <div class="q"><strong>P:</strong> {{ msg.question }}</div>
+          <div class="a"><strong>R:</strong> {{ msg.answer | slice:0:200 }}{{ msg.answer.length > 200 ? '...' : '' }}</div>
+        </div>
+        <mat-action-row>
+          <button mat-button color="primary" [routerLink]="['/chat', conv.id]">
+            <mat-icon>open_in_new</mat-icon> Continuar
+          </button>
+          <button mat-button color="warn" (click)="deleteOne(conv.id)">
+            <mat-icon>delete</mat-icon> Eliminar
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

@@ -1,0 +1,127 @@
+<div class="chat-layout">
+  <div class="chat-main">
+    <div class="chat-container">
+      <div class="chat-title-bar" *ngIf="conversationId">
+        <div *ngIf="!editingTitle" class="chat-title-display">
+          <span class="chat-title-text">{{ title }}</span>
+          <button mat-icon-button (click)="startEditTitle()" matTooltip="Renombrar">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        <div *ngIf="editingTitle" class="chat-title-edit">
+          <mat-form-field appearance="outline" dense>
+            <input matInput [(ngModel)]="editTitleValue" (keyup.enter)="saveTitle()" (blur)="saveTitle()" autofocus>
+          </mat-form-field>
+          <button mat-icon-button (click)="cancelEditTitle()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="messages" #messagesContainer (scroll)="onMessagesScroll()">
+        <div *ngIf="messages.length === 0" class="welcome">
+          <mat-icon>gavel</mat-icon>
+          <h2>LexIA Colombia</h2>
+          <p>Pregunta sobre cualquier artículo de la legislación colombiana</p>
+          <div class="examples">
+            <mat-chip (click)="sendQuickQuestion('¿Qué dice el Artículo 1 de la Constitución?')">
+              ¿Qué dice el Artículo 1 de la Constitución?
+            </mat-chip>
+            <mat-chip (click)="sendQuickQuestion('¿Cuáles son los derechos fundamentales en Colombia?')">
+              ¿Cuáles son los derechos fundamentales?
+            </mat-chip>
+            <mat-chip (click)="sendQuickQuestion('Explique el debido proceso')">
+              Explique el debido proceso
+            </mat-chip>
+          </div>
+        </div>
+        <div *ngFor="let msg of messages; trackBy: trackById; let i = index" class="message-group" [attr.data-msg-index]="i">
+          <div class="message user-message">
+            <div class="message-content">{{ msg.question }}</div>
+          </div>
+          <div class="message assistant-message">
+            <div class="message-content markdown" [innerHTML]="formatAnswer(msg.answer)"></div>
+            <div class="sources" *ngIf="msg.sources?.length">
+              <h4>Fuentes:</h4>
+              <div class="source-item" *ngFor="let source of msg.sources">
+                <mat-icon>article</mat-icon>
+                <span>{{ source.law }} - Artículo {{ source.article }}: {{ source.title }}</span>
+              </div>
+            </div>
+            <div class="web-refs" *ngIf="msg.webReferences?.length">
+              <h4><mat-icon>language</mat-icon> Referencias web</h4>
+              <div class="ref-grid">
+                <a class="ref-card" *ngFor="let ref of msg.webReferences" [href]="ref.url" target="_blank" rel="noopener">
+                  <div class="ref-card-icon">
+                    <mat-icon>open_in_new</mat-icon>
+                  </div>
+                  <div class="ref-card-body">
+                    <span class="ref-title">{{ ref.title }}</span>
+                    <span class="ref-domain">{{ getDomain(ref.url) }}</span>
+                  </div>
+                  <mat-icon class="ref-arrow">chevron_right</mat-icon>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="loading" class="message assistant-message">
+          <div class="message-content typing-indicator">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-text">LexIA está pensando</span>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <mat-form-field appearance="outline" class="chat-input">
+          <input
+            matInput
+            [(ngModel)]="question"
+            (keyup.enter)="sendMessage()"
+            placeholder="Escribe tu pregunta sobre legislación colombiana..."
+            [disabled]="loading"
+          >
+        </mat-form-field>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="sendMessage()"
+          [disabled]="!question.trim() || loading"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <button *ngIf="showScrollBottom" class="scroll-bottom-fab" mat-mini-fab color="primary" (click)="scrollToBottom()">
+      <mat-icon>keyboard_arrow_down</mat-icon>
+    </button>
+  </div>
+
+  <div class="chat-sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-header">
+      <span>Preguntas</span>
+      <button mat-icon-button (click)="sidebarOpen = false" *ngIf="sidebarOpen">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="sidebar-list" *ngIf="messages.length > 0">
+      <button
+        *ngFor="let msg of messages; let i = index"
+        class="sidebar-item"
+        (click)="scrollToMessage(i)"
+      >
+        <mat-icon>chat</mat-icon>
+        <span>{{ msg.question | slice:0:60 }}{{ msg.question.length > 60 ? '...' : '' }}</span>
+      </button>
+    </div>
+    <div class="sidebar-empty" *ngIf="messages.length === 0">
+      <p>Sin preguntas aún</p>
+    </div>
+  </div>
+
+  <button *ngIf="messages.length > 0" class="sidebar-toggle" mat-mini-fab color="accent" (click)="sidebarOpen = !sidebarOpen">
+    <mat-icon>{{ sidebarOpen ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+  </button>
+</div>

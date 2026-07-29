@@ -1,0 +1,52 @@
+<div class="admin-documents">
+  <div class="header">
+    <h1>Gestión de Documentos</h1>
+    <button mat-raised-button color="primary" (click)="fileInput.click()">
+      <mat-icon>upload</mat-icon> Subir PDF
+    </button>
+    <input #fileInput type="file" accept=".pdf" hidden (change)="uploadFile($event)">
+  </div>
+
+  <div class="upload-area" *ngIf="uploading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Procesando documento...</p>
+  </div>
+
+  <mat-card *ngIf="documents.length === 0 && !loading" class="empty">
+    <mat-card-content>
+      <mat-icon>description</mat-icon>
+      <p>No hay documentos cargados</p>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="table-wrapper" *ngIf="documents.length > 0">
+  <table mat-table [dataSource]="documents" class="docs-table">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let doc">{{ doc.name }}</td>
+    </ng-container>
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let doc"><mat-chip>{{ doc.type }}</mat-chip></td>
+    </ng-container>
+    <ng-container matColumnDef="articles">
+      <th mat-header-cell *matHeaderCellDef>Artículos</th>
+      <td mat-cell *matCellDef="let doc">{{ doc.articlesCount || '-' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Fecha de carga</th>
+      <td mat-cell *matCellDef="let doc">{{ doc.uploadedAt | date:'medium' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let doc">
+        <button mat-icon-button color="warn" (click)="deleteDocument(doc.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+  </table>
+  </div>
+</div>

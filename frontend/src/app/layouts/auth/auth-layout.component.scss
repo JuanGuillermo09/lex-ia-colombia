@@ -1,0 +1,67 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #0a0e27 0%, #141838 35%, #0f1b45 65%, #16204a 100%);
+  position: relative;
+}
+.auth-container::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(59,130,246,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+.auth-content {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: white;
+  position: relative;
+}
+.back-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #94a3b8;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+.back-link:hover { color: #60a5fa; }
+.auth-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  color: #60a5fa;
+  filter: drop-shadow(0 0 16px rgba(96,165,250,0.25));
+}
+.auth-ai-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.25);
+  color: #93c5fd; padding: 4px 14px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 500; margin-bottom: 12px;
+}
+.auth-ai-badge mat-icon { font-size: 14px; width: 14px; height: 14px; }
+.auth-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.auth-header p {
+  margin: 0.5rem 0 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+@media (max-width: 480px) {
+  .auth-container { padding: 16px; }
+  .auth-card { padding: 24px 16px; }
+}

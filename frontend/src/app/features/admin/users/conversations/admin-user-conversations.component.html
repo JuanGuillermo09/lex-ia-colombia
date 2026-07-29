@@ -1,0 +1,54 @@
+<div class="user-conversations">
+  <div class="header">
+    <button mat-icon-button routerLink="/admin/users">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Conversaciones de {{ userName }}</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Cargando conversaciones...</p>
+  </div>
+
+  <div *ngIf="!loading && conversations.length === 0" class="empty">
+    <mat-icon>chat_bubble_outline</mat-icon>
+    <p>Este usuario no tiene conversaciones</p>
+  </div>
+
+  <mat-accordion *ngIf="!loading && conversations.length > 0" class="conv-list">
+    <mat-expansion-panel *ngFor="let conv of conversations" class="conv-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>chat</mat-icon>
+          <span>{{ conv.title }}</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          {{ conv.createdAt | date:'short' }} — {{ conv.messages.length }} mensajes
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="messages-readonly">
+        <div *ngFor="let msg of conv.messages" class="msg-group">
+          <div class="msg user-msg">
+            <strong>Usuario:</strong>
+            <p>{{ msg.question }}</p>
+          </div>
+          <div class="msg bot-msg">
+            <strong>LexIA:</strong>
+            <div class="markdown" [innerHTML]="formatAnswer(msg.answer)"></div>
+            <div class="msg-sources" *ngIf="msg.sources?.length">
+              <span *ngFor="let s of msg.sources" class="source-chip">
+                {{ s.law }} - Art. {{ s.article }}
+              </span>
+            </div>
+            <div class="msg-refs" *ngIf="msg.webReferences?.length">
+              <a *ngFor="let ref of msg.webReferences" [href]="ref.url" target="_blank" class="ref-link">
+                <mat-icon>open_in_new</mat-icon> {{ ref.title || getDomain(ref.url) }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

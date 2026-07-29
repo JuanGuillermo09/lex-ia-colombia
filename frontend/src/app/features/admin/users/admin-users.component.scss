@@ -1,0 +1,12 @@
+.admin-users { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 1.8rem; font-weight: 600; color: #1a237e; margin-bottom: 24px; }
+.table-wrapper { overflow-x: auto; }
+.users-table { width: 100%; min-width: 600px; }
+
+@media (max-width: 768px) {
+  .admin-users { padding: 16px; }
+  .admin-users h1 { font-size: 1.3rem; }
+}
+@media (max-width: 480px) {
+  .admin-users { padding: 8px; }
+}

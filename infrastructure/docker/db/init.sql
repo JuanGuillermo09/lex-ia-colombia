@@ -1,0 +1,2 @@
+CREATE DATABASE lexia_db;
+GRANT ALL PRIVILEGES ON DATABASE lexia_db TO lexia;

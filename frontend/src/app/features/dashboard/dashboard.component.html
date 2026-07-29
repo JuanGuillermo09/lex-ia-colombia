@@ -1,0 +1,27 @@
+<div class="dashboard">
+  <h1>Bienvenido, {{ (authService.user$ | async)?.name }}</h1>
+  <p class="subtitle">¿En qué puedo ayudarte hoy?</p>
+
+  <div class="quick-actions">
+    <mat-card class="action-card" routerLink="/chat">
+      <mat-icon>chat</mat-icon>
+      <h3>Nueva consulta</h3>
+      <p>Pregunta sobre legislación colombiana</p>
+    </mat-card>
+    <mat-card class="action-card" routerLink="/history">
+      <mat-icon>history</mat-icon>
+      <h3>Historial</h3>
+      <p>Revisa tus conversaciones anteriores</p>
+    </mat-card>
+    <mat-card class="action-card" routerLink="/profile">
+      <mat-icon>person</mat-icon>
+      <h3>Perfil</h3>
+      <p>Actualiza tu información personal</p>
+    </mat-card>
+    <mat-card class="action-card" routerLink="/admin" *ngIf="(authService.user$ | async)?.role === 'ADMIN'">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <h3>Administración</h3>
+      <p>Gestiona documentos y usuarios</p>
+    </mat-card>
+  </div>
+</div>

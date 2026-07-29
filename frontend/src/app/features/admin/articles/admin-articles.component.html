@@ -1,0 +1,42 @@
+<div class="articles">
+  <div class="header">
+    <h1>Artículos almacenados</h1>
+    <span class="total" *ngIf="!loading">{{ total }} artículos</span>
+  </div>
+
+  <div class="scroll-area" #scrollArea (scroll)="onScroll(scrollArea)">
+    <div *ngIf="loading" class="loading">
+      <mat-icon>hourglass_empty</mat-icon> Cargando artículos...
+    </div>
+
+    <div *ngIf="!loading && articles.length === 0" class="empty">
+      <mat-icon>menu_book</mat-icon>
+      <p>No hay artículos almacenados</p>
+    </div>
+
+    <div class="article-grid" *ngIf="!loading && articles.length > 0">
+      <mat-card *ngFor="let article of articles" class="article-card">
+        <mat-card-header>
+          <mat-card-title>
+            <span class="article-num">Artículo {{ article.number }}</span>
+          </mat-card-title>
+          <mat-card-subtitle>{{ article.title || 'Sin título' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="article-text">{{ article.text | slice:0:300 }}{{ article.text.length > 300 ? '...' : '' }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <button *ngIf="showScrollTop" class="scroll-top-btn" mat-mini-fab color="primary" (click)="scrollToTop(scrollArea)">
+    <mat-icon>keyboard_arrow_up</mat-icon>
+  </button>
+
+  <mat-paginator *ngIf="totalPages > 1"
+    [length]="total"
+    [pageSize]="limit"
+    [pageSizeOptions]="[20, 50, 100]"
+    (page)="onPageChange($event)">
+  </mat-paginator>
+</div>

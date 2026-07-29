@@ -1,0 +1,29 @@
+<div class="admin-stats">
+  <h1>Estadísticas</h1>
+
+  <div *ngIf="loading">Cargando...</div>
+
+  <div class="stats-grid" *ngIf="!loading && stats">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>description</mat-icon>
+        <div class="stat-value">{{ stats.totalDocuments }}</div>
+        <div class="stat-label">Documentos</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>menu_book</mat-icon>
+        <div class="stat-value">{{ stats.totalArticles }}</div>
+        <div class="stat-label">Artículos</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card" *ngFor="let item of stats.documentsByType">
+      <mat-card-content>
+        <mat-icon>category</mat-icon>
+        <div class="stat-value">{{ item.count }}</div>
+        <div class="stat-label">{{ item.type }}</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
