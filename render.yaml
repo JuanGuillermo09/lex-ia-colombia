@@ -36,7 +36,6 @@ services:
 
   - type: static
     name: lexia-frontend
-    runtime: node
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist/browser
