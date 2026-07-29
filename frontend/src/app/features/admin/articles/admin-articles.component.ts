@@ -6,18 +6,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-admin-articles',
   standalone: true,
   imports: [
     NgFor, NgIf, SlicePipe,
-    MatButtonModule, MatCardModule, MatIconModule, MatPaginatorModule,
+    MatButtonModule, MatCardModule, MatIconModule, MatPaginatorModule, MatSnackBarModule,
   ],
   templateUrl: './admin-articles.component.html',
   styleUrl: './admin-articles.component.scss',
 })
-/** Panel de administración de artículos generados desde documentos. */
 export class AdminArticlesComponent implements OnInit {
   articles: Article[] = [];
   total = 0;
@@ -25,16 +26,19 @@ export class AdminArticlesComponent implements OnInit {
   limit = 50;
   totalPages = 0;
   loading = true;
+  updating = false;
+  exporting = false;
   showScrollTop = false;
 
-  constructor(private articleService: ArticleService) {}
+  constructor(
+    private articleService: ArticleService,
+    private snackBar: MatSnackBar,
+  ) {}
 
-  /** Al iniciar, carga la primera página de artículos. */
   ngOnInit(): void {
     this.load();
   }
 
-  /** Obtiene la lista paginada de artículos. */
   load(): void {
     this.articleService.getAll(this.page, this.limit).subscribe({
       next: (res) => {
@@ -47,7 +51,6 @@ export class AdminArticlesComponent implements OnInit {
     });
   }
 
-  /** Maneja el cambio de página o tamaño de página. */
   onPageChange(e: PageEvent): void {
     this.page = e.pageIndex + 1;
     this.limit = e.pageSize;
@@ -55,13 +58,46 @@ export class AdminArticlesComponent implements OnInit {
     this.load();
   }
 
-  /** Detecta si el scroll superó el umbral para mostrar el botón de volver arriba. */
   onScroll(el: HTMLElement): void {
     this.showScrollTop = el.scrollTop > 300;
   }
 
-  /** Desplaza suavemente el contenedor al inicio. */
   scrollToTop(el: HTMLElement): void {
     el.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updateArticles(): void {
+    this.updating = true;
+    this.articleService.update().subscribe({
+      next: (result) => {
+        this.updating = false;
+        this.snackBar.open(
+          `Actualizado: ${result.documentsUpdated} documentos, ${result.articlesAdded} artículos añadidos, ${result.articlesRemoved} eliminados`,
+          'Cerrar', { duration: 6000 },
+        );
+        if (result.errors.length > 0) {
+          console.warn('Errores:', result.errors);
+        }
+        this.load();
+      },
+      error: (err) => {
+        this.updating = false;
+        this.snackBar.open('Error al actualizar artículos', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  downloadPdf(): void {
+    this.exporting = true;
+    this.articleService.exportPdf().subscribe({
+      next: (blob) => {
+        this.exporting = false;
+        saveAs(blob, 'articulos-lexia.pdf');
+      },
+      error: () => {
+        this.exporting = false;
+        this.snackBar.open('Error al generar PDF', 'Cerrar', { duration: 4000 });
+      },
+    });
   }
 }

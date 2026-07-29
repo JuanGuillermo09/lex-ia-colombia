@@ -1,7 +1,17 @@
 <div class="articles">
   <div class="header">
     <h1>Artículos almacenados</h1>
-    <span class="total" *ngIf="!loading">{{ total }} artículos</span>
+    <div class="header-actions">
+      <span class="total" *ngIf="!loading">{{ total }} artículos</span>
+      <button mat-stroked-button color="primary" (click)="updateArticles()" [disabled]="updating">
+        <mat-icon>{{ updating ? 'hourglass_empty' : 'sync' }}</mat-icon>
+        {{ updating ? 'Actualizando...' : 'Actualizar artículos' }}
+      </button>
+      <button mat-stroked-button (click)="downloadPdf()" [disabled]="exporting">
+        <mat-icon>{{ exporting ? 'hourglass_empty' : 'download' }}</mat-icon>
+        {{ exporting ? 'Generando...' : 'Descargar PDF' }}
+      </button>
+    </div>
   </div>
 
   <div class="scroll-area" #scrollArea (scroll)="onScroll(scrollArea)">
