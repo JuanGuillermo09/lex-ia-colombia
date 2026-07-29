@@ -35,7 +35,7 @@ export class GeminiService implements IAIService {
         parts: [{ text: m.content }],
       }));
 
-    const model = options?.model || 'gemini-pro';
+    const model = options?.model || config.ai.gemini.model;
     const url = `${this.baseUrl}/models/${model}:generateContent?key=${this.apiKey}`;
 
     const body: any = {
