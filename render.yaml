@@ -11,8 +11,8 @@ services:
     plan: free
     region: oregon
     rootDir: backend
-    buildCommand: npm install && npm run build
-    startCommand: npx prisma generate && npx prisma migrate deploy && npx tsx scripts/seed.ts && node -r tsconfig-paths/register dist/app.js
+    buildCommand: npm install && npx prisma generate
+    startCommand: npx prisma migrate deploy && npx tsx scripts/seed.ts && npx tsx src/app.ts
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
