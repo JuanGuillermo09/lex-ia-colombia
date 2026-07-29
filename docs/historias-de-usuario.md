@@ -144,17 +144,36 @@
 
 ---
 
-## HU-11: Subir documentos (Admin)
+## HU-11: Actualizar artículos con IA (Admin)
 
 **Como** administrador  
-**Quiero** subir documentos PDF con articulados legales  
-**Para** que el sistema indexe los artículos y los use en las respuestas
+**Quiero** iniciar una actualización automática de artículos legales desde la web  
+**Para** que el sistema busque códigos legales colombianos, extraiga artículos con IA y los indexe con embeddings
 
 **Criterios de aceptación:**
-- Selecciono un archivo PDF y lo subo
-- El sistema procesa el PDF y extrae los artículos
-- Los artículos se almacenan con embeddings para búsqueda semántica
-- Veo el documento en la lista de documentos subidos
+- Hay un botón "Actualizar artículos" que inicia el proceso
+- El sistema busca en DuckDuckGo códigos legales colombianos (Código Sustantivo del Trabajo, Código Civil, etc.)
+- Extrae el contenido de las páginas web encontradas
+- Usa Groq IA para estructurar los artículos (número, título, texto)
+- Genera embeddings para cada artículo
+- Los artículos se guardan en la base de datos (upsert por número y código)
+- Se muestra una barra de progreso o indicador de carga durante el proceso
+- Al finalizar, se muestra un resumen de cuántos artículos se actualizaron
+
+---
+
+## HU-11b: Exportar artículos a PDF (Admin)
+
+**Como** administrador  
+**Quiero** descargar todos los artículos indexados como un archivo PDF  
+**Para** tener una copia de respaldo o consultarlos sin conexión
+
+**Criterios de aceptación:**
+- Hay un botón "Descargar PDF" en la vista de artículos
+- Al hacer clic, el backend genera un PDF con todos los artículos (número, título, texto, código legal)
+- El PDF se descarga automáticamente en el navegador
+- Mientras se genera, se muestra un indicador de carga
+- Si no hay artículos, se muestra un mensaje informativo
 
 ---
 
@@ -197,11 +216,12 @@
 **Criterios de aceptación:**
 - Veo una lista paginada con número, título y texto del artículo
 - La cabecera de la tabla permanece fija al hacer scroll
+- Hay botones "Actualizar artículos" y "Descargar PDF" en la parte superior
 - Hay un botón flotante para volver al inicio de la página
 
 ---
 
-## HU-14: Ver estadísticas (Admin)
+## HU-15: Ver estadísticas (Admin)
 
 **Como** administrador  
 **Quiero** ver estadísticas del sistema  
@@ -214,7 +234,7 @@
 
 ---
 
-## HU-15: Landing page
+## HU-16: Landing page
 
 **Como** visitante no autenticado  
 **Quiero** ver una página de presentación del producto  
@@ -229,7 +249,7 @@
 
 ---
 
-## HU-16: Diseño responsive
+## HU-17: Diseño responsive
 
 **Como** usuario en dispositivo móvil  
 **Quiero** que la aplicación se adapte a mi pantalla  
@@ -244,7 +264,7 @@
 
 ---
 
-## HU-17: Notificaciones Toast
+## HU-18: Notificaciones Toast
 
 **Como** usuario  
 **Quiero** ver notificaciones visuales cuando ocurren acciones importantes  

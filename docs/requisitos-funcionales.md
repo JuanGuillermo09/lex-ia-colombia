@@ -58,8 +58,8 @@
 
 | ID | Nombre | Descripción | Prioridad |
 |----|--------|-------------|-----------|
-| RF-25 | Subir documento PDF | El administrador debe poder subir un archivo PDF con articulados legales. | Alta |
-| RF-26 | Listar documentos | El administrador debe poder listar los documentos subidos. | Alta |
+| RF-25 | Actualizar artículos desde web | El administrador debe poder iniciar una búsqueda web automática de códigos legales colombianos; el sistema usa IA para extraer artículos y los guarda en la base de datos. | Alta |
+| RF-26 | Listar documentos | El administrador debe poder listar los documentos disponibles. | Alta |
 | RF-27 | Eliminar documento | El administrador debe poder eliminar un documento y sus artículos asociados. | Alta |
 
 ## Módulo de administración — Artículos
@@ -68,25 +68,26 @@
 |----|--------|-------------|-----------|
 | RF-28 | Ver artículos indexados | El administrador debe poder ver todos los artículos indexados con paginación (cabecera fija, área scrolleable). | Alta |
 | RF-29 | Scroll-to-top en artículos | En la lista de artículos debe haber un botón flotante para volver al inicio. | Baja |
+| RF-30 | Exportar artículos a PDF | El administrador debe poder descargar un PDF con todos los artículos indexados, generado dinámicamente por el backend. | Media |
 
 ## Módulo de administración — Estadísticas
 
 | ID | Nombre | Descripción | Prioridad |
 |----|--------|-------------|-----------|
-| RF-30 | Ver estadísticas | El administrador debe poder ver estadísticas: total de documentos, artículos y distribución por tipo. | Media |
+| RF-31 | Ver estadísticas | El administrador debe poder ver estadísticas: total de documentos, artículos y distribución por tipo. | Media |
 
 ## Módulo de landing page
 
 | ID | Nombre | Descripción | Prioridad |
 |----|--------|-------------|-----------|
-| RF-31 | Página de presentación | El sistema debe mostrar una landing page con hero, características, pasos de uso y footer. | Alta |
-| RF-32 | Badge de IA | La landing page debe mostrar un badge indicando "Impulsado por Groq · IA en funcionamiento" en el hero. | Baja |
+| RF-32 | Página de presentación | El sistema debe mostrar una landing page con hero, características, pasos de uso y footer. | Alta |
+| RF-33 | Badge de IA | La landing page debe mostrar un badge indicando "Impulsado por Groq · IA en funcionamiento" en el hero. | Baja |
 
 ## Módulo de interfaz de usuario
 
 | ID | Nombre | Descripción | Prioridad |
 |----|--------|-------------|-----------|
-| RF-33 | Diseño responsive | La aplicación debe adaptarse a dispositivos móviles, tablets y desktop con media queries. | Alta |
-| RF-34 | Skeleton loading | Las vistas deben mostrar shimmer/skeleton mientras cargan datos. | Media |
-| RF-35 | Toast/Snackbar | Las notificaciones deben mostrarse mediante un sistema de toasts estilizados (ToastService con MatSnackBar). | Media |
-| RF-36 | Sidenav responsive | El menú lateral debe cambiar a modo "over" en dispositivos móviles con botón de cierre. | Alta |
+| RF-34 | Diseño responsive | La aplicación debe adaptarse a dispositivos móviles, tablets y desktop con media queries. | Alta |
+| RF-35 | Skeleton loading | Las vistas deben mostrar shimmer/skeleton mientras cargan datos. | Media |
+| RF-36 | Toast/Snackbar | Las notificaciones deben mostrarse mediante un sistema de toasts estilizados (ToastService con MatSnackBar). | Media |
+| RF-37 | Sidenav responsive | El menú lateral debe cambiar a modo "over" en dispositivos móviles con botón de cierre. | Alta |

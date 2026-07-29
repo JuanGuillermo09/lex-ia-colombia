@@ -39,20 +39,21 @@ Desarrollar y desplegar un asistente legal inteligente, gratuito y de código ab
 | Autenticación | JWT + Refresh Tokens |
 | IA | Groq (llama-3.3-70b-versatile) para chat, HuggingFace para embeddings |
 | Búsqueda web | DuckDuckGo Lite |
-| Contenedores | Docker + Docker Compose + Nginx |
+| Despliegue | Render.com (Web Service + Static Site + PostgreSQL) |
 
 ## Entregables
 - Aplicación web funcional con autenticación de usuarios
 - Chat interactivo con respuestas basadas en legislación colombiana
 - Panel de administración para gestión de documentos, usuarios y estadísticas
 - Documentación completa del proyecto (requisitos, arquitectura, API)
-- Despliegue en producción mediante Docker
+- Actualización automática de artículos legales mediante búsqueda web con IA
+- Despliegue en producción mediante Render.com
 
 ## Criterios de éxito
 - El asistente responde preguntas sobre legislación colombiana con precisión
 - Las respuestas incluyen referencias a artículos de ley y fuentes web verificables
 - El sistema soporta múltiples usuarios con roles (USER, ADMIN)
-- Los administradores pueden subir documentos PDF y gestionar contenido
+- Los administradores pueden actualizar artículos automáticamente desde web con IA y exportarlos a PDF
 - La aplicación es responsive y funciona en dispositivos móviles
 - El código sigue principios de Clean Architecture y buenas prácticas
 

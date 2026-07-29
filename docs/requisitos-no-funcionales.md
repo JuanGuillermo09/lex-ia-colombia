@@ -56,21 +56,22 @@
 
 | ID | Nombre | Descripción | Prioridad |
 |----|--------|-------------|-----------|
-| RNF-23 | Contenedores Docker | La aplicación debe desplegarse usando Docker Compose con tres servicios: db, backend, frontend. | Alta |
-| RNF-24 | Proxy inverso | El frontend debe servirse mediante Nginx como proxy inverso. | Alta |
-| RNF-25 | Migración automática | El entrypoint del backend debe ejecutar migraciones y seed automáticamente al iniciar. | Alta |
+| RNF-23 | Hosting en Render | La aplicación debe desplegarse en Render.com: backend como Web Service, frontend como Static Site, base de datos como PostgreSQL. | Alta |
+| RNF-24 | SPA routing | El frontend debe copiar index.html como 404.html para que el routing de Angular funcione en Render. | Alta |
+| RNF-25 | Migración automática | El backend debe ejecutar migraciones y seed al iniciar mediante un script de build o start. | Alta |
+| RNF-26 | Spin-down recovery | Los servicios gratuitos de Render deben responder correctamente tras el spin-down por inactividad (primera solicitud ~30s). | Media |
 
 ## Código
 
 | ID | Nombre | Descripción | Prioridad |
 |----|--------|-------------|-----------|
-| RNF-26 | TypeScript estricto | Todo el código debe estar escrito en TypeScript con tipos estrictos. | Alta |
-| RNF-27 | Documentación | Todos los archivos TypeScript deben tener comentarios JSDoc/TSDoc en español. | Media |
-| RNF-28 | ESLint + Prettier | El código debe seguir las reglas de ESLint y Prettier configuradas en el proyecto. | Media |
+| RNF-27 | TypeScript estricto | Todo el código debe estar escrito en TypeScript con tipos estrictos. | Alta |
+| RNF-28 | Documentación | Todos los archivos TypeScript deben tener comentarios JSDoc/TSDoc en español. | Media |
+| RNF-29 | ESLint + Prettier | El código debe seguir las reglas de ESLint y Prettier configuradas en el proyecto. | Media |
 
 ## Mantenibilidad
 
 | ID | Nombre | Descripción | Prioridad |
 |----|--------|-------------|-----------|
-| RNF-29 | Variables de entorno | La configuración sensible debe manejarse mediante variables de entorno con archivo .env. | Alta |
-| RNF-30 | Separación de archivos | Cada componente Angular debe tener archivos separados para HTML, SCSS y TypeScript. | Alta |
+| RNF-30 | Variables de entorno | La configuración sensible debe manejarse mediante variables de entorno con archivo .env. | Alta |
+| RNF-31 | Separación de archivos | Cada componente Angular debe tener archivos separados para HTML, SCSS y TypeScript. | Alta |
