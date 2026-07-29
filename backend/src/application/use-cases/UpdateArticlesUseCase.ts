@@ -129,11 +129,11 @@ export class UpdateArticlesUseCase {
     const response = await this.aiService.generateChatCompletion([
       {
         role: 'system',
-        content: `Eres un asistente legal experto en legislación colombiana. Extrae los artículos del texto legal proporcionado. Responde SOLO con un JSON válido: {"articles":[{"number":"1","title":"","text":"..."}]}. Sin markdown ni explicaciones.`,
+        content: `Eres un asistente legal experto en legislación colombiana. Extrae los artículos del texto legal proporcionado. Responde SOLO con un JSON válido. Sin markdown ni explicaciones.`,
       },
       {
         role: 'user',
-        content: `Texto legal: ${codeName}\n\n${content}`,
+        content: `Texto legal: ${codeName}\n\n${content}\n\nFormato: {"articles":[{"number":"1","title":"","text":"..."}]}`,
       },
     ], { temperature: 0.1, maxTokens: 4000 });
     return this.parseArticleJson(response.content);
@@ -143,7 +143,11 @@ export class UpdateArticlesUseCase {
     const response = await this.aiService.generateChatCompletion([
       {
         role: 'system',
-        content: `Eres un asistente legal experto en legislación colombiana. Lista los 10 artículos más importantes del ${codeName}. Incluye número, título y texto completo de cada artículo. Responde SOLO con un JSON válido: {"articles":[{"number":"1","title":"Título","text":"Texto completo del artículo..."}]}. Sin markdown ni explicaciones.`,
+        content: `Eres un asistente legal experto en legislación colombiana. Responde SOLO con un JSON válido. Sin markdown ni explicaciones.`,
+      },
+      {
+        role: 'user',
+        content: `Lista los 10 artículos más importantes del ${codeName}. Incluye número, título y texto completo de cada artículo. Formato: {"articles":[{"number":"1","title":"Título","text":"Texto completo del artículo..."}]}`,
       },
     ], { temperature: 0.1, maxTokens: 4000 });
     return this.parseArticleJson(response.content);
