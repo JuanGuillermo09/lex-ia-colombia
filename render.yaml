@@ -33,14 +33,3 @@ services:
         value: https://lexia-frontend.onrender.com
       - key: PORT
         value: "3000"
-
-  - type: static
-    name: lexia-frontend
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist/browser
-    envVars:
-      - key: API_URL
-        value: https://lexia-backend.onrender.com
-      - key: CI
-        value: "false"
