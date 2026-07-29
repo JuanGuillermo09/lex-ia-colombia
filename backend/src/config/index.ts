@@ -67,8 +67,8 @@ export const config = {
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '20971520', 10),
   },
   cors: {
-    /** Origen permitido para CORS */
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    /** Origen(es) permitido(s) para CORS (separados por coma) */
+    origin: (process.env.CORS_ORIGIN || 'http://localhost:4200').split(',').map(s => s.trim()),
   },
   smtp: {
     host: process.env.SMTP_HOST || '',

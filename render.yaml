@@ -30,6 +30,6 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: CORS_ORIGIN
-        value: https://lexia-frontend.onrender.com
+        value: https://lex-ia-colombia.onrender.com,https://lexia-frontend.onrender.com
       - key: PORT
         value: "3000"
