@@ -15,7 +15,7 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
-    "@prisma/client": "6.19.3",
+    "@prisma/client": "^7.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -49,7 +49,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.4.2",
-    "prisma": "6.19.3",
+    "prisma": "^7.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.0"
   }
