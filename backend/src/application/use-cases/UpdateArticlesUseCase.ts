@@ -18,12 +18,28 @@ interface UpdateResult {
 }
 
 const LEGAL_CODES = [
-  { name: 'Código Sustantivo del Trabajo', type: 'Código' },
-  { name: 'Código Civil Colombiano', type: 'Código' },
-  { name: 'Código de Comercio', type: 'Código' },
-  { name: 'Código Penal Colombiano', type: 'Código' },
-  { name: 'Código General del Proceso', type: 'Código' },
-  { name: 'Constitución Política de Colombia', type: 'Constitución' },
+  { name: 'Código Sustantivo del Trabajo', type: 'Código', urls: [
+    'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=33104',
+    'https://www.secretariasenado.gov.co/senado/basedoc/codigo_sustantivo_trabajo.html',
+  ]},
+  { name: 'Código Civil Colombiano', type: 'Código', urls: [
+    'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=39535',
+    'https://www.secretariasenado.gov.co/senado/basedoc/codigo_civil.html',
+  ]},
+  { name: 'Código de Comercio', type: 'Código', urls: [
+    'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=41102',
+    'https://www.secretariasenado.gov.co/senado/basedoc/codigo_comercio.html',
+  ]},
+  { name: 'Código Penal Colombiano', type: 'Código', urls: [
+    'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=638270',
+  ]},
+  { name: 'Código General del Proceso', type: 'Código', urls: [
+    'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=576167',
+  ]},
+  { name: 'Constitución Política de Colombia', type: 'Constitución', urls: [
+    'https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=4125',
+    'https://www.secretariasenado.gov.co/senado/basedoc/constitucion_politica.html',
+  ]},
 ];
 
 export class UpdateArticlesUseCase {
@@ -84,25 +100,41 @@ export class UpdateArticlesUseCase {
     return result;
   }
 
-  private async fetchArticles(code: { name: string; type: string }, log?: (msg: string) => void): Promise<ArticleData[]> {
+  private async fetchArticles(code: { name: string; type: string; urls?: string[] }, log?: (msg: string) => void): Promise<ArticleData[]> {
     let content: string | null = null;
-    try {
-      const searchResults = await this.webSearch.search(code.name.replace('Colombiano', '').trim(), 1);
-      if (searchResults.length > 0) {
-        log?.(`Buscando contenido web: ${searchResults[0].url}`);
-        content = await this.fetchPageContent(searchResults[0].url);
-      } else {
-        log?.('Sin resultados web, generando artículos con IA...');
+    if (code.urls) {
+      for (const url of code.urls) {
+        log?.(`Intentando fuente oficial: ${url}`);
+        content = await this.fetchPageContent(url);
+        if (content) break;
       }
-    } catch {
-      log?.('Error en búsqueda web, generando artículos con IA...');
+    }
+    if (!content) {
+      try {
+        const searchResults = await this.webSearch.search(code.name.replace('Colombiano', '').trim(), 3);
+        for (const result of searchResults) {
+          log?.(`Buscando contenido web: ${result.url}`);
+          content = await this.fetchPageContent(result.url);
+          if (content) break;
+        }
+        if (!content) log?.('Sin resultados web útiles');
+      } catch {
+        log?.('Error en búsqueda web');
+      }
     }
     if (content && content.length > 100) {
       log?.(`Extrayendo artículos de contenido web (${content.length} caracteres)...`);
       return this.extractWithAI(content, code.name);
     }
     log?.('Generando artículos desde conocimiento de IA...');
-    return this.generateWithAI(code.name);
+    const firstBatch = await this.generateWithAI(code.name, 1);
+    let allArticles = [...firstBatch];
+    if (allArticles.length > 0) {
+      log?.(`Generados ${allArticles.length} artículos, continuando...`);
+      const secondBatch = await this.generateWithAI(code.name, allArticles.length + 1);
+      allArticles = [...allArticles, ...secondBatch];
+    }
+    return allArticles;
   }
 
   private async fetchPageContent(url: string): Promise<string | null> {
@@ -139,7 +171,7 @@ export class UpdateArticlesUseCase {
     return this.parseArticleJson(response.content);
   }
 
-  private async generateWithAI(codeName: string): Promise<ArticleData[]> {
+  private async generateWithAI(codeName: string, startFrom?: number): Promise<ArticleData[]> {
     const response = await this.aiService.generateChatCompletion([
       {
         role: 'system',
@@ -147,7 +179,9 @@ export class UpdateArticlesUseCase {
       },
       {
         role: 'user',
-        content: `Lista los 10 artículos más importantes del ${codeName}. Incluye número, título y texto completo de cada artículo. Formato: {"articles":[{"number":"1","title":"Título","text":"Texto completo del artículo..."}]}`,
+        content: startFrom && startFrom > 1
+          ? `Enumera los artículos del ${codeName} desde el artículo ${startFrom} hasta el ${startFrom + 19}. Incluye número, título y texto completo. Formato: {"articles":[{"number":"1","title":"Título","text":"..."}]}`
+          : `Lista los primeros 20 artículos del ${codeName}. Incluye número, título y texto completo de cada artículo. Formato: {"articles":[{"number":"1","title":"Título","text":"..."}]}`,
       },
     ], { temperature: 0.1, maxTokens: 4000 });
     return this.parseArticleJson(response.content);
