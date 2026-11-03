@@ -25,8 +25,8 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    /** El seed no debe impedir que el API arranque si falla. */
+    console.error('Seed failed (continuing without seed):', e);
   })
   .finally(async () => {
     await prisma.$disconnect();
