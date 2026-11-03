@@ -4,6 +4,7 @@ import { LoginUseCase } from '../../application/use-cases/LoginUseCase';
 import { JwtAuthService } from '../../infrastructure/auth/JwtAuthService';
 import prisma from '../../infrastructure/database/PrismaClient';
 import { sendPasswordResetEmail } from '../../infrastructure/email/EmailService';
+import { config } from '../../config';
 import crypto from 'crypto';
 
 /** Controlador de autenticación de usuarios */
@@ -78,8 +79,15 @@ export class AuthController {
       const { email } = req.body;
 
       const user = await prisma.user.findUnique({ where: { email } });
+
+      /** Respuesta genérica para no revelar si un correo está registrado. */
+      const response: { message: string; expiresIn: number; code?: string } = {
+        message: 'Si el correo está registrado, recibirás un código de verificación',
+        expiresIn: 5 * 60 * 1000,
+      };
+
       if (!user) {
-        res.status(404).json({ error: 'No existe una cuenta con ese correo' });
+        res.json(response);
         return;
       }
 
@@ -91,11 +99,13 @@ export class AuthController {
       });
 
       const sent = await sendPasswordResetEmail(email, code);
-      res.json({
-        message: 'Código de verificación enviado al correo',
-        code: sent ? undefined : code,
-        expiresIn: 5 * 60 * 1000,
-      });
+
+      /** Solo expone el código en desarrollo cuando no hay SMTP configurado. */
+      if (config.nodeEnv !== 'production' && !sent) {
+        response.code = code;
+      }
+
+      res.json(response);
     } catch (error) {
       next(error);
     }

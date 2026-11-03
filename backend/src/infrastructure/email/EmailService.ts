@@ -20,21 +20,26 @@ function getTransporter(): nodemailer.Transporter {
 
 export async function sendPasswordResetEmail(to: string, code: string): Promise<boolean> {
   if (config.smtp.host) {
-    const t = getTransporter();
-    await t.sendMail({
-      from: config.smtp.from,
-      to,
-      subject: 'LexIA Colombia - Código de restablecimiento de contraseña',
-      html: `
-        <h2>Restablecimiento de contraseña</h2>
-        <p>Has solicitado restablecer tu contraseña en LexIA Colombia.</p>
-        <p>Tu código de verificación es:</p>
-        <h1 style="font-size:32px;letter-spacing:4px;background:#f5f5f5;padding:16px;text-align:center;border-radius:8px;">${code}</h1>
-        <p>Este código expira en 5 minutos.</p>
-        <p>Si no solicitaste esto, ignora este mensaje.</p>
-      `,
-    });
-    return true;
+    try {
+      const t = getTransporter();
+      await t.sendMail({
+        from: config.smtp.from,
+        to,
+        subject: 'LexIA Colombia - Código de restablecimiento de contraseña',
+        html: `
+          <h2>Restablecimiento de contraseña</h2>
+          <p>Has solicitado restablecer tu contraseña en LexIA Colombia.</p>
+          <p>Tu código de verificación es:</p>
+          <h1 style="font-size:32px;letter-spacing:4px;background:#f5f5f5;padding:16px;text-align:center;border-radius:8px;">${code}</h1>
+          <p>Este código expira en 5 minutos.</p>
+          <p>Si no solicitaste esto, ignora este mensaje.</p>
+        `,
+      });
+      return true;
+    } catch (error) {
+      console.error('[EMAIL] No se pudo enviar el código de restablecimiento:', error);
+      return false;
+    }
   }
   console.log(`\n[EMAIL] Código de restablecimiento para ${to}: ${code}\n`);
   return false;
