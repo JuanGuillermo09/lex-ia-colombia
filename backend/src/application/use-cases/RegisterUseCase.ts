@@ -1,7 +1,8 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { IAuthService, AuthTokens } from '../../domain/services/IAuthService';
+import { AppError } from '../../domain/errors/AppError';
 import { RegisterDTO, AuthResponseDTO } from '../dtos/AuthDTOs';
-import { User, Role } from '../../domain/entities/User';
+import { Role } from '../../domain/entities/User';
 
 /** Caso de uso: registrar un nuevo usuario en el sistema */
 export class RegisterUseCase {
@@ -17,7 +18,7 @@ export class RegisterUseCase {
   async execute(dto: RegisterDTO): Promise<AuthResponseDTO> {
     const existing = await this.userRepository.findByEmail(dto.email);
     if (existing) {
-      throw new Error('El correo ya está registrado');
+      throw new AppError(409, 'El correo ya está registrado');
     }
 
     const hashedPassword = await this.authService.hashPassword(dto.password);

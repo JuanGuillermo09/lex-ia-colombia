@@ -1,5 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { IAuthService } from '../../domain/services/IAuthService';
+import { AppError } from '../../domain/errors/AppError';
 import { LoginDTO, AuthResponseDTO } from '../dtos/AuthDTOs';
 
 /** Caso de uso: iniciar sesión con credenciales de usuario */
@@ -16,12 +17,12 @@ export class LoginUseCase {
   async execute(dto: LoginDTO): Promise<AuthResponseDTO> {
     const user = await this.userRepository.findByEmail(dto.email);
     if (!user) {
-      throw new Error('Credenciales inválidas');
+      throw new AppError(401, 'Credenciales inválidas');
     }
 
     const isValid = await this.authService.comparePassword(dto.password, user.password);
     if (!isValid) {
-      throw new Error('Credenciales inválidas');
+      throw new AppError(401, 'Credenciales inválidas');
     }
 
     const tokens = this.authService.generateTokens({

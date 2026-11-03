@@ -1,19 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../../domain/errors/AppError';
 
-/** Error personalizado con código de estado HTTP */
-export class AppError extends Error {
-  /**
-   * @param statusCode Código de estado HTTP del error
-   * @param message Mensaje descriptivo del error
-   */
-  constructor(
-    public statusCode: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = 'AppError';
-  }
-}
+export { AppError } from '../../domain/errors/AppError';
 
 /**
  * Middleware global de manejo de errores
