@@ -213,6 +213,8 @@ LexIA está desplegado en Render.com (plan gratuito). Usa un Blueprint (`render.
 - El frontend requiere `404.html` en el build para SPA routing (se copia automáticamente desde `index.html`)
 - El health check del backend (`/api/health`) está fuera del rate limiter para evitar falsos positivos
 - Si los servicios gratuitos se duermen por inactividad, el primer request puede demorar ~30s
+- El backend compila TypeScript con `npm run build` y arranca con `npm start`; el build instala también devDependencies porque `NODE_ENV=production` las omite por defecto
+- **Importante:** una base PostgreSQL gratuita de Render expira a los 30 días. Para conservar los datos, usa una base paga o un proveedor externo como Neon/Supabase.
 
 ---
 
