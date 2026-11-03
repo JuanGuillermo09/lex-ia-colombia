@@ -11,6 +11,8 @@ services:
     plan: free
     region: oregon
     rootDir: backend
+    branch: main
+    autoDeployTrigger: commit
     buildCommand: npm install --include=dev --legacy-peer-deps && npx prisma generate && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
