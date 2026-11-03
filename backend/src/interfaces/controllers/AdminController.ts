@@ -23,12 +23,23 @@ export class AdminController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
 
-      const result = await this.userRepository.findAll(page, limit);
+      const { users, total } = await this.userRepository.findAll(page, limit);
+
+      /** Nunca exponer el hash de la contraseña a clientes de la API. */
+      const safeUsers = users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      }));
+
       res.json({
-        ...result,
+        users: safeUsers,
+        total,
         page,
         limit,
-        totalPages: Math.ceil(result.total / limit),
+        totalPages: Math.ceil(total / limit),
       });
     } catch (error) {
       next(error);
