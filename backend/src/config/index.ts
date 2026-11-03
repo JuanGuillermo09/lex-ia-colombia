@@ -47,8 +47,8 @@ export const config = {
       model: process.env.MISTRAL_MODEL || 'mistral-large-latest',
     },
     groq: {
-      apiKey: process.env.GROQ_API_KEY || 'gsk-your-groq-api-key',
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      apiKey: process.env.GROQ_API_KEY || '',
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
       embeddingModel: process.env.GROQ_EMBEDDING_MODEL || 'sentence-transformers/all-MiniLM-L6-v2',
       hfToken: process.env.HF_TOKEN || '',
     },

@@ -28,13 +28,15 @@ services:
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: AI_PROVIDER
-        value: fallback
+        value: groq
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
-        value: llama-3.1-8b-instant
+        value: openai/gpt-oss-120b
       - key: GEMINI_API_KEY
         sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
       - key: HF_TOKEN
         sync: false
       - key: CORS_ORIGIN
